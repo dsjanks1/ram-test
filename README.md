@@ -1,8 +1,20 @@
 # ram-test
 
+# Ensure you have node installed v14 or above
+# Ensure you have npm installed 8.11.0 or above
+
+
 # To run the project
 
+ 2. `npm i` Install node_modules
+
  1. `npm run start` //Starts the application using nodemon and ts-node to do cold reloading.
+
+# Programming Challenge - Starship Captain
+
+You are the captain of a starship. You have been tasked with finding and colonizing habitable planets in your galaxy. 
+Your home world is located at these coordinates: 123.123.99.1 X & 098.098.11.1 Y & 456.456.99.9 Z
+Your coordinate system ranges from 000.000.00.0 to 999.999.99.9, and you live in a three-dimensional universe.
 
 
 # Calculating the distance between planets using Pythagoras' theorem
