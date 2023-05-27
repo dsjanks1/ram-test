@@ -1,5 +1,5 @@
 import { readFile } from 'fs/promises';
-import { Universe, Planet, Monster, Coordinates } from '../src/classes/universeClasses';
+import { Universe, Planet, Monster, Coordinates } from './classes/universeClasses';
 
 interface PlanetWithDistance {
   planet: Planet;
@@ -11,39 +11,36 @@ const calculateDistance = (from: Coordinates, to: Coordinates) => {
   return Math.sqrt(Math.pow(from.x - to.x, 2) + Math.pow(from.y - to.y, 2) + Math.pow(from.z - to.z, 2));
 }
 
+// Function reads the "universe.json" file, which should contain a representation of the universe with planets and monsters.
+// Each line of the file is processed separately, and if it matches the regular expressions, the necessary data is extracted to create Planet and Monster objects. 
+// These objects are then stored in a new Universe object.
 const readUniverseFromFile = async (): Promise<Universe> => {
   // Load universe data from file
-  const data = await readFile('universe.txt', 'utf8');
-  const lines = data.split('\n');
+  const data = await readFile('universe.json', 'utf8');
+  
+  // Parse the JSON data
+  const jsonData = JSON.parse(data);
 
   let universe = new Universe(0);
 
-  for (let line of lines) {
-
-    let matchX = line.match(/x: (\d+.\d+),/);
-    let matchY = line.match(/y: (\d+.\d+),/);
-    let matchZ = line.match(/z: (\d+.\d+),?/);
-
-    if (matchX && matchY && matchZ) {
-      const coordinates = new Coordinates(
-        parseFloat(matchX[1]),
-        parseFloat(matchY[1]),
-        parseFloat(matchZ[1])
+  for (let planetData of jsonData.planets) {
+    const coordinates = new Coordinates(
+      planetData.coordinates.x,
+      planetData.coordinates.y,
+      planetData.coordinates.z
     );
+    const isHabitable = planetData.isHabitable;
+    const surfaceArea = planetData.surfaceArea;
+    universe.planets.push(new Planet(coordinates, isHabitable, surfaceArea));
+  }
 
-    if (line.startsWith('Planet')) {
-        let matchHabitable = line.match(/Habitable: (true|false),/);
-        let matchSurfaceArea = line.match(/Surface Area: (\d+)/);
-
-        if (matchHabitable && matchSurfaceArea) {
-        const isHabitable = matchHabitable[1] === 'true';
-        const surfaceArea = parseFloat(matchSurfaceArea[1]);
-        universe.planets.push(new Planet(coordinates, isHabitable, surfaceArea));
-        }
-    } else {
-        universe.monsters.push(new Monster(coordinates));
-        }
-    }
+  for (let monsterData of jsonData.monsters) {
+    const coordinates = new Coordinates(
+      monsterData.coordinates.x,
+      monsterData.coordinates.y,
+      monsterData.coordinates.z
+    );
+    universe.monsters.push(new Monster(coordinates));
   }
 
   return universe;
@@ -104,3 +101,12 @@ const findPlanetsToColonize = async (homePlanet: Planet) => {
     }).catch(error => {
     console.error('An error occurred:', error);
     });
+
+
+
+// findPlanetsToColonize: This function takes as an argument a homePlanet (an object of the Planet class) from which the colonization process will start. The function calculates the distance from the current planet to all other habitable planets and chooses the nearest one. If a monster is detected in the path to the nearest planet, it doubles the travel time. It also checks if there is enough time left to travel to the planet, colonize it, and travel back. If there is, the planet is added to the list of colonized planets and becomes the new current planet.
+
+// homePlanet: This is a Planet object which represents the starting point of the colonization.
+
+// findPlanetsToColonize(homePlanet).then(...): This line of code calls the function findPlanetsToColonize with homePlanet as the argument, and logs the colonized planets or any errors that may occur.
+

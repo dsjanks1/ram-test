@@ -7,18 +7,28 @@ const createUniverse = () => {
   return universe;
 };
 
+// writing to a json file instead of txt, easier to work with in TypeScript and conform to JSON standards. 
 const writeUniverseToFile = async (universe: Universe) => {
-  let outputLines: string[] = [];
+  const universeData = {
+    planets: universe.planets.map(planet => ({
+      coordinates: {
+        x: planet.coordinates.x,
+        y: planet.coordinates.y,
+        z: planet.coordinates.z
+      },
+      isHabitable: planet.isHabitable,
+      surfaceArea: planet.surfaceArea
+    })),
+    monsters: universe.monsters.map(monster => ({
+      coordinates: {
+        x: monster.coordinates.x,
+        y: monster.coordinates.y,
+        z: monster.coordinates.z
+      }
+    }))
+  };
 
-  for (let planet of universe.planets) {
-    outputLines.push(`Planet: {x: ${planet.coordinates.x}, y: ${planet.coordinates.y}, z: ${planet.coordinates.z}}, Habitable: ${planet.isHabitable}, Surface Area: ${planet.surfaceArea}`);
-  }
-
-  for (let monster of universe.monsters) {
-    outputLines.push(`Monster: {x: ${monster.coordinates.x}, y: ${monster.coordinates.y}, z: ${monster.coordinates.z}}`);
-  }
-
-  await writeFile('universe.txt', outputLines.join('\n'));
+  await writeFile('universe.json', JSON.stringify(universeData, null, 2));
 };
 
 const main = async () => {
