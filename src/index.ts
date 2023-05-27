@@ -1,40 +1,14 @@
-import { writeFile } from 'fs/promises';
-import { Universe } from '../src/classes/universeClasses';
+import { Planet, Coordinates } from './classes/universeClasses';
+import {createUniverse, writeUniverseToFile} from "./controllers/universe";
+import {colonizeUniverse} from "./controllers/colonize";
 
-const createUniverse = () => {
-  // Randomly generate 15 000 locations by setting parameter 
-  let universe = new Universe(15000);
-  universe.generate();
-  return universe;
-};
-
-// writing to a json file instead of txt, easier to work with in TypeScript and conform to JSON standards. 
-const writeUniverseToFile = async (universe: Universe) => {
-  const universeData = {
-    planets: universe.planets.map(planet => ({
-      coordinates: {
-        x: planet.coordinates.x,
-        y: planet.coordinates.y,
-        z: planet.coordinates.z
-      },
-      isHabitable: planet.isHabitable,
-      surfaceArea: planet.surfaceArea
-    })),
-    monsters: universe.monsters.map(monster => ({
-      coordinates: {
-        x: monster.coordinates.x,
-        y: monster.coordinates.y,
-        z: monster.coordinates.z
-      }
-    }))
-  };
-
-  await writeFile('universe.json', JSON.stringify(universeData, null, 2));
-};
-
-const main = async () => {
-  let universe = createUniverse();
+export const createUniverseToJSON = async () => {
+  const universe = createUniverse();
   await writeUniverseToFile(universe);
 }
 
-main();
+  // Define home planet
+  const homePlanet = new Planet(new Coordinates(1233.123, 898.08, 456.456), true, 50_000_000);
+
+  createUniverseToJSON().then(() => colonizeUniverse(homePlanet));
+  // colonizeUniverse(homePlanet);
