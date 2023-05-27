@@ -19,13 +19,13 @@ const readUniverseFromFile = async (): Promise<Universe> => {
   let universe = new Universe(0);
 
   for (let line of lines) {
-    // 
+
     let matchX = line.match(/x: (\d+.\d+),/);
     let matchY = line.match(/y: (\d+.\d+),/);
-    let matchZ = line.match(/z: (\d+.\d+),/);
+    let matchZ = line.match(/z: (\d+.\d+),?/);
 
     if (matchX && matchY && matchZ) {
-    const coordinates = new Coordinates(
+      const coordinates = new Coordinates(
         parseFloat(matchX[1]),
         parseFloat(matchY[1]),
         parseFloat(matchZ[1])
@@ -62,7 +62,6 @@ const findPlanetsToColonize = async (homePlanet: Planet) => {
       planet: p,
       distance: calculateDistance(currentPlanet.coordinates, p.coordinates)
     }));
-
     while (timeLeft > 0 && habitablePlanets.length > 0) {
         // Sort habitable planets by distance
         habitablePlanets.sort((a, b) => a.distance - b.distance);
@@ -80,6 +79,7 @@ const findPlanetsToColonize = async (homePlanet: Planet) => {
         let colonizationTime = nearestPlanet.surfaceArea * colonizationTimePerKm2;
       
         // Check if there's enough time to travel to the planet, colonize it, and travel back to home
+
         if (timeLeft >= 2 * travelTime + colonizationTime) {
           colonizedPlanets.push(nearestPlanet);
           timeLeft -= 2 * travelTime + colonizationTime;
@@ -94,19 +94,13 @@ const findPlanetsToColonize = async (homePlanet: Planet) => {
     }
 
     // Define home planet
-    const homePlanet = new Planet(new Coordinates(123.123, 98.098, 456.456), true, 1000000);
-    console.log('homePlanet---',homePlanet)
-    console.log('colonizedPlanets---')
+    const homePlanet = new Planet(new Coordinates(1233.123, 898.08, 456.456), true, 50_000_000);
+
     // Call the function with the home planet
     findPlanetsToColonize(homePlanet).then(colonizedPlanets => {
-console.log(colonizedPlanets)
     for (let planet of colonizedPlanets) {
-        console.log(`Colonized planet at {x: ${planet.coordinates.x}, y: ${planet.coordinates.y}, z: ${planet.coordinates.z}}, Surface Area: ${planet.surfaceArea}`);
         console.log(`Colonized planet at {x: ${planet.coordinates.x}, y: ${planet.coordinates.y}, z: ${planet.coordinates.z}}, Surface Area: ${planet.surfaceArea}`);
     }
     }).catch(error => {
     console.error('An error occurred:', error);
     });
-
-    // const PlanetCoordinates =
-    // findPlanetsToColonize();
