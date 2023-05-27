@@ -2,6 +2,7 @@ import { writeFile } from 'fs/promises';
 import { Universe } from '../src/classes/universeClasses';
 
 const createUniverse = () => {
+  // Randomly generate 15 000 locations by setting parameter 
   let universe = new Universe(15000);
   universe.generate();
   return universe;

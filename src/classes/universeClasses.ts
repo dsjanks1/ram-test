@@ -17,17 +17,23 @@ export class Coordinates {
   export class Universe {
     public planets: Planet[] = [];
     public monsters: Monster[] = [];
-  
+    
+    // Set size of universe - Randomly generate 15 000 locations
     constructor(public size: number) {}
   
+    // Populate arrays of planets and monsters
     generate = () => {
       for (let i = 0; i < this.size; i++) {
-        let x = Math.random() * 1000;
-        let y = Math.random() * 1000;
-        let z = Math.random() * 1000;
+        // genrate random values within range 0 - 1000
+        const x = Math.random() * 1000;
+        const y = Math.random() * 1000;
+        const z = Math.random() * 1000;
   
+        // Random probability check to determine if new location will be a planet or a monster, if larger than 0.5 create a planet
         if (Math.random() > 0.5) {
-          let isHabitable = Math.random() > 0.5;
+          
+         // Random probability if planet is habitable or not
+                         const isHabitable = Math.random() > 0.5;
           this.planets.push(new Planet(new Coordinates(x, y, z), isHabitable));
         } else {
           this.monsters.push(new Monster(new Coordinates(x, y, z)));

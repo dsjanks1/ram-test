@@ -1,0 +1,23 @@
+{
+  "flightPlan": [
+    {
+      "step": 1,
+      "action": "Travel to planet",
+      "coordinates": {
+        "x": 994.7278699799787,
+        "y": 863.4495001963394,
+        "z": 399.80104842874175
+      }
+    },
+    {
+      "step": 2,
+      "action": "Travel to planet",
+      "coordinates": {
+        "x": 997.014599866999,
+        "y": 782.6676788675591,
+        "z": 491.3498510899281
+      }
+    }
+  ],
+  "totalSurfaceArea": 188878557276
+}

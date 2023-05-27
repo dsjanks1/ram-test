@@ -1,10 +1,8 @@
 import { readFile } from 'fs/promises';
+import { writeFile } from 'fs/promises';
 import { Universe, Planet, Monster, Coordinates } from './classes/universeClasses';
+import {PlanetWithDistance, FlightPlanStep} from './types/types'
 
-interface PlanetWithDistance {
-  planet: Planet;
-  distance: number;
-}
 
 // Function to calculate distance between two coordinates
 const calculateDistance = (from: Coordinates, to: Coordinates) => {
@@ -45,9 +43,11 @@ const readUniverseFromFile = async (): Promise<Universe> => {
 
   return universe;
 }
-const findPlanetsToColonize = async (homePlanet: Planet) => {
-  const universe = await readUniverseFromFile();
+let totalSurfaceArea = 0;
 
+const findPlanetsToColonize = async (homePlanet: Planet) => {
+  totalSurfaceArea = 0;
+  const universe = await readUniverseFromFile();
   let timeLeft = 24 * 60; // Time in minutes
   const colonizationTimePerKm2 = 0.043 / (60 * 60); // Time in minutes
   let currentPlanet = homePlanet;
@@ -82,13 +82,36 @@ const findPlanetsToColonize = async (homePlanet: Planet) => {
           timeLeft -= 2 * travelTime + colonizationTime;
           currentPlanet = nearestPlanet;
         }
-      
+        totalSurfaceArea += nearestPlanet.surfaceArea;
+
         // Remove the current planet from the list
         habitablePlanets.shift();
       }
     
       return colonizedPlanets;
     }
+
+
+
+    const writeReport = async (colonizedPlanets: Planet[], totalSurfaceArea: number) => {
+      let report = {
+        flightPlan: [] as FlightPlanStep[],
+        totalSurfaceArea: totalSurfaceArea
+      };
+    
+      for (let i = 0; i < colonizedPlanets.length; i++) {
+        let planet = colonizedPlanets[i];
+        report.flightPlan.push({
+          step: i + 1,
+          action: 'Travel to planet',
+          coordinates: { x: planet.coordinates.x, y: planet.coordinates.y, z: planet.coordinates.z }
+        });
+      }
+    
+      await writeFile('report.json', JSON.stringify(report, null, 2));
+    }
+    
+    
 
     // Define home planet
     const homePlanet = new Planet(new Coordinates(1233.123, 898.08, 456.456), true, 50_000_000);
@@ -98,6 +121,8 @@ const findPlanetsToColonize = async (homePlanet: Planet) => {
     for (let planet of colonizedPlanets) {
         console.log(`Colonized planet at {x: ${planet.coordinates.x}, y: ${planet.coordinates.y}, z: ${planet.coordinates.z}}, Surface Area: ${planet.surfaceArea}`);
     }
+
+    writeReport(colonizedPlanets, totalSurfaceArea);
     }).catch(error => {
     console.error('An error occurred:', error);
     });
