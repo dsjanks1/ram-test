@@ -1,49 +1,75 @@
+
+import {FormattedCoordinates} from "../types/types"
+// This class defines the three-dimensional coordinates of an object in the universe
 export class Coordinates {
-    constructor(public x: number, public y: number, public z: number) {}
+    // Define x, y and z as strings to allow formatted coordinates
+    constructor(public x: string, public y: string, public z: string) {}
+  
+    // Method to format the coordinates as a FormattedCoordinates object
+    format(): FormattedCoordinates {
+      return {
+        x: this.x,
+        y: this.y,
+        z: this.z,
+      };
+    }
+  
+    // Method to convert the coordinates to a single string
+    toString(): string {
+      return `${this.x}.${this.y}.${this.z}`;
+    }
   }
   
+  
+  // This class represents a planet
   export class Planet {
+    // The constructor receives the coordinates of the planet, its habitability, and optionally its surface area
     constructor(public coordinates: Coordinates, public isHabitable: boolean, public surfaceArea: number = 0) {
-        // If the planet is habitable, generate a random surface area between 1 000 000 and 100 000 000 square kilometers
-        if (isHabitable) {
-            // multiplies the random number by 99,000,000. The result is a random number between 0 (inclusive) and 99,000,000 
-            // Rounds down the resulting number to the nearest integer. This is done to avoid fractions and to ensure that the surface area is always a whole number
-            // add 1,000,000 to the result. This shifts the range of possible results from 0-99,000,000 to 1,000,000-100,000,000
-            // guarantees that the minimum possible surface area is 1,000,000 rather than 0.
-            this.surfaceArea = Math.floor(Math.random() * 99_000_000) + 1_000_000;
-        }
+      // If the planet is habitable, its surface area is a random number between 1_000_000 and 100_000_000
+      if (isHabitable) {
+        this.surfaceArea = Math.floor(Math.random() * 99_000_000) + 1_000_000;
+      }
     }
-}
+  }
   
   export class Monster {
+    // The constructor receives the coordinates of the monster
     constructor(public coordinates: Coordinates) {}
   }
   
+  // Main class defining the universe
   export class Universe {
+    // The universe consists of a list of planets and a list of monsters
     public planets: Planet[] = [];
     public monsters: Monster[] = [];
-    
-    // When an instance is created, the size is passed as an argument to the constructor function. (15 000 locations)
+  
+    // Define the size of the universe (number of locations) when an instance of Universe is created
     constructor(public size: number) {}
   
-    // Populate arrays of planets and monsters
+    // Private method to generate a single segment of a coordinate.
+    // A segment is a 1-3 digits number, padded with zeros if it has less than the required digits
+    private generateSegment = (digits: number) => (Math.floor(Math.random() * (10 ** digits))).toString().padStart(digits, '0');
+  
+    // Private method to generate a full coordinate, composed of four segments
+    // The format is 000.000.00.0, giving a total of 9 digits
+    private generateCoordinate = () => `${this.generateSegment(3)}.${this.generateSegment(3)}.${this.generateSegment(2)}.${this.generateSegment(1)}`;
+  
+    // This function populates the universe with planets and monsters
     generate = () => {
       for (let i = 0; i < this.size; i++) {
-        // genrate random values within range 0 - 1000
-        const x = Math.random() * 1000;
-        const y = Math.random() * 1000;
-        const z = Math.random() * 1000;
-       
-        // Random probability check to determine if new location will be a planet or a monster, if larger than 0.5 create a planet
-        // If a randomly generated number is greater than 0.5, create a new Planet instance.
-        // Otherwise, create a new Monster instance.
+        // For each location, x, y, and z coordinates are generated
+        const x = this.generateCoordinate();
+        const y = this.generateCoordinate();
+        const z = this.generateCoordinate();
+  
+        // There is a 50% chance for each location to be a planet or a monster
         if (Math.random() > 0.5) {
-          
-        // Random probability if planet is habitable or not
+          // There is also a 50% chance for each planet to be habitable
           const isHabitable = Math.random() > 0.5;
-        // Create a new Planet instance with the generated properties and add it to the planets array.
+          // If the location is a planet, a new Planet object is created and added to the list of planets
           this.planets.push(new Planet(new Coordinates(x, y, z), isHabitable));
         } else {
+          // If the location is a monster, a new Monster object is created and added to the list of monsters
           this.monsters.push(new Monster(new Coordinates(x, y, z)));
         }
       }

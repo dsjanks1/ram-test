@@ -5,12 +5,18 @@ export type PlanetWithDistance = {
     distance: number;
   }
   
-  export type FlightPlanStep = {
+  export interface FlightPlanStep {
     step: number;
     action: string;
     coordinates: {
-      x: number;
-      y: number;
-      z: number;
+        x: string;
+        y: string;
+        z: string;
     };
-  }
+}
+
+export type FormattedCoordinates = {
+  x: string;
+  y: string;
+  z: string;
+};

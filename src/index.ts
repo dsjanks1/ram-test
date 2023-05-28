@@ -8,7 +8,8 @@ export const createUniverseToJSON = async () => {
 }
 
   // Define home planet
-  const homePlanet = new Planet(new Coordinates(1233.123, 898.08, 456.456), true, 50_000_000);
+  // 123.123.99.1 X & 098.098.11.1 Y & 456.456.99.9 Z
+  const homePlanet = new Planet(new Coordinates('123.123.99.1', '098.098.11.1','456.456.99.9'), true, 50_000_000);
 
+  //Create universe and colonize 
   createUniverseToJSON().then(() => colonizeUniverse(homePlanet));
-  // colonizeUniverse(homePlanet);

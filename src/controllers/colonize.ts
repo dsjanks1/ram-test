@@ -2,16 +2,39 @@ import { readFile, writeFile } from 'fs/promises';
 import { Universe, Planet, Monster, Coordinates } from '../classes/universeClasses';
 import {PlanetWithDistance, FlightPlanStep} from '../types/types'
 
-// Function to calculate distance between two coordinates
+// Helper function to calculate distance between two coordinates
 // Utilizes the distance formula derived from Pythagoras' theorem
 
-const calculateDistance = (from: Coordinates, to: Coordinates) => {
-
-//  The calculation used is a greedy algorithm where at each step it picks the nearest habitable planet to colonize, considering the time it takes
-//  to travel and colonize the planet. This strategy does not necessarily guarantee that the largest amount of space is colonized within a 24-hour period, 
-//  because it could miss out on distant planets that have significantly more surface area to offer.
-  return Math.sqrt(Math.pow(from.x - to.x, 2) + Math.pow(from.y - to.y, 2) + Math.pow(from.z - to.z, 2));
+const stringCoordinateToNumber = (coordinate: string) => {
+  const [segment1, segment2, segment3, segment4] = coordinate.split('.');
+  // Convert the segments into a decimal number
+  return parseInt(segment1) + parseInt(segment2)/1000 + parseInt(segment3)/100 + parseInt(segment4)/10;
 }
+
+// Type for formatted coordinates
+type FormattedCoordinates = {
+  x: string;
+  y: string;
+  z: string;
+};
+
+// Modifying calculateDistance function to accept FormattedCoordinates
+const calculateDistance = (from: FormattedCoordinates, to: FormattedCoordinates) => {
+  const fromX = stringCoordinateToNumber(from.x);
+  const fromY = stringCoordinateToNumber(from.y);
+  const fromZ = stringCoordinateToNumber(from.z);
+  const toX = stringCoordinateToNumber(to.x);
+  const toY = stringCoordinateToNumber(to.y);
+  const toZ = stringCoordinateToNumber(to.z);
+
+  return Math.sqrt(
+    Math.pow(fromX - toX, 2) +
+    Math.pow(fromY - toY, 2) +
+    Math.pow(fromZ - toZ, 2)
+  );
+};
+
+
 
 // Reads JSON file containing universe data, and constructs a Universe object from this data
 const readUniverseFromFile = async (): Promise<Universe> => {
@@ -62,13 +85,12 @@ const findPlanetsToColonize = async (homePlanet: Planet) => {
   let currentPlanet = homePlanet;
   const colonizedPlanets: Planet[] = [];
 
-  // Identify all habitable planets in the universe
   const habitablePlanets: PlanetWithDistance[] = universe.planets
-    .filter(p => p.isHabitable)
-    .map(p => ({
-      planet: p,
-      distance: calculateDistance(currentPlanet.coordinates, p.coordinates)
-    }));
+  .filter((p) => p.isHabitable)
+  .map((p) => ({
+    planet: p,
+    distance: calculateDistance(currentPlanet.coordinates, p.coordinates),
+  }));
 
   // Main loop for colonization procedure. Continues as long as there's time left and habitable planets remaining.
   while (timeLeft > 0 && habitablePlanets.length > 0) {
@@ -119,13 +141,14 @@ const writeReport = async (colonizedPlanets: Planet[], totalSurfaceArea: number)
     report.flightPlan.push({
       step: i + 1,
       action: 'Travel to planet',
-      coordinates: { x: planet.coordinates.x, y: planet.coordinates.y, z: planet.coordinates.z }
+      coordinates: planet.coordinates
     });
   }
 
   // Write the report to a file
   await writeFile('report.json', JSON.stringify(report, null, 2));
 }
+
 
 // Function to start the colonization process
 export const colonizeUniverse = async (homePlanet: Planet) => {
