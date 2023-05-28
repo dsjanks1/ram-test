@@ -1,5 +1,6 @@
 
 import {FormattedCoordinates} from "../types/types"
+
 // This class defines the three-dimensional coordinates of an object in the universe
 export class Coordinates {
     // Define x, y and z as strings to allow formatted coordinates

@@ -1,25 +1,20 @@
 import { readFile, writeFile } from 'fs/promises';
 import { Universe, Planet, Monster, Coordinates } from '../classes/universeClasses';
-import {PlanetWithDistance, FlightPlanStep} from '../types/types'
+import {PlanetWithDistance, FlightPlanStep, FormattedCoordinates} from '../types/types'
 
-// Helper function to calculate distance between two coordinates
-// Utilizes the distance formula derived from Pythagoras' theorem
-
+// Helper function to convert string coordinates to numberical
 const stringCoordinateToNumber = (coordinate: string) => {
   const [segment1, segment2, segment3, segment4] = coordinate.split('.');
   // Convert the segments into a decimal number
   return parseInt(segment1) + parseInt(segment2)/1000 + parseInt(segment3)/100 + parseInt(segment4)/10;
 }
 
-// Type for formatted coordinates
-type FormattedCoordinates = {
-  x: string;
-  y: string;
-  z: string;
-};
-
-// Modifying calculateDistance function to accept FormattedCoordinates
+// Helper function to calculate distance between two coordinates
+// Utilizes the distance formula derived from Pythagoras' theorem
+// Three-dimensional version of the Euclidean distance formula
 const calculateDistance = (from: FormattedCoordinates, to: FormattedCoordinates) => {
+
+  //Converting the string coordinates of the from and to points into numerical values.
   const fromX = stringCoordinateToNumber(from.x);
   const fromY = stringCoordinateToNumber(from.y);
   const fromZ = stringCoordinateToNumber(from.z);
@@ -27,6 +22,9 @@ const calculateDistance = (from: FormattedCoordinates, to: FormattedCoordinates)
   const toY = stringCoordinateToNumber(to.y);
   const toZ = stringCoordinateToNumber(to.z);
 
+  // Used to calculate the Euclidean distance between the two points
+  // Formula sqrt((x2 - x1)^2 + (y2 - y1)^2 + (z2 - z1)^2).
+  // sqrt function is used to take the square root of the sum, which gives the actual Euclidean distance.
   return Math.sqrt(
     Math.pow(fromX - toX, 2) +
     Math.pow(fromY - toY, 2) +
