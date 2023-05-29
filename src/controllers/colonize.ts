@@ -1,17 +1,38 @@
 import { readFile, writeFile } from 'fs/promises';
 import { Universe, Planet, Monster, Coordinates } from '../classes/universeClasses';
-import {PlanetWithDistance, FlightPlanStep} from '../types/types'
+import {PlanetWithDistance, FlightPlanStep, FormattedCoordinates} from '../types/types'
 
-// Function to calculate distance between two coordinates
-// Utilizes the distance formula derived from Pythagoras' theorem
-
-const calculateDistance = (from: Coordinates, to: Coordinates) => {
-
-//  The calculation used is a greedy algorithm where at each step it picks the nearest habitable planet to colonize, considering the time it takes
-//  to travel and colonize the planet. This strategy does not necessarily guarantee that the largest amount of space is colonized within a 24-hour period, 
-//  because it could miss out on distant planets that have significantly more surface area to offer.
-  return Math.sqrt(Math.pow(from.x - to.x, 2) + Math.pow(from.y - to.y, 2) + Math.pow(from.z - to.z, 2));
+// Helper function to convert string coordinates to numberical
+const stringCoordinateToNumber = (coordinate: string) => {
+  const [segment1, segment2, segment3, segment4] = coordinate.split('.');
+  // Convert the segments into a decimal number
+  return parseInt(segment1) + parseInt(segment2)/1000 + parseInt(segment3)/100 + parseInt(segment4)/10;
 }
+
+// Helper function to calculate distance between two coordinates
+// Utilizes the distance formula derived from Pythagoras' theorem
+// Three-dimensional version of the Euclidean distance formula
+const calculateDistance = (from: FormattedCoordinates, to: FormattedCoordinates) => {
+
+  //Converting the string coordinates of the from and to points into numerical values.
+  const fromX = stringCoordinateToNumber(from.x);
+  const fromY = stringCoordinateToNumber(from.y);
+  const fromZ = stringCoordinateToNumber(from.z);
+  const toX = stringCoordinateToNumber(to.x);
+  const toY = stringCoordinateToNumber(to.y);
+  const toZ = stringCoordinateToNumber(to.z);
+
+  // Used to calculate the Euclidean distance between the two points
+  // Formula sqrt((x2 - x1)^2 + (y2 - y1)^2 + (z2 - z1)^2).
+  // sqrt function is used to take the square root of the sum, which gives the actual Euclidean distance.
+  return Math.sqrt(
+    Math.pow(fromX - toX, 2) +
+    Math.pow(fromY - toY, 2) +
+    Math.pow(fromZ - toZ, 2)
+  );
+};
+
+
 
 // Reads JSON file containing universe data, and constructs a Universe object from this data
 const readUniverseFromFile = async (): Promise<Universe> => {
@@ -23,7 +44,7 @@ const readUniverseFromFile = async (): Promise<Universe> => {
 
   // Initialize a new Universe
   const universe = new Universe(0);
-
+    
   // Iterate through the planets and monsters in the parsed data, 
   // creating new Planet and Monster instances and adding them to the Universe
   for (const planetData of jsonData.planets) {
@@ -57,18 +78,20 @@ let totalSurfaceArea = 0;
 const findPlanetsToColonize = async (homePlanet: Planet) => {
   totalSurfaceArea = 0;
   const universe = await readUniverseFromFile();
+  // Initialize the total time available for colonization, which is 24 hours, converted into minutes.
   let timeLeft = 24 * 60; // Time in minutes
+  // Calculate the time required to colonize a square kilometer, given in minutes.
   const colonizationTimePerKm2 = 0.043 / (60 * 60); // Time in minutes
   let currentPlanet = homePlanet;
   const colonizedPlanets: Planet[] = [];
 
-  // Identify all habitable planets in the universe
+  //Generate an array of all habitable planets in the universe, along with their distances from the current planet.
   const habitablePlanets: PlanetWithDistance[] = universe.planets
-    .filter(p => p.isHabitable)
-    .map(p => ({
-      planet: p,
-      distance: calculateDistance(currentPlanet.coordinates, p.coordinates)
-    }));
+  .filter((p) => p.isHabitable)
+  .map((p) => ({
+    planet: p,
+    distance: calculateDistance(currentPlanet.coordinates, p.coordinates),
+  }));
 
   // Main loop for colonization procedure. Continues as long as there's time left and habitable planets remaining.
   while (timeLeft > 0 && habitablePlanets.length > 0) {
@@ -86,7 +109,7 @@ const findPlanetsToColonize = async (homePlanet: Planet) => {
         });
 
         // Calculate travel time and colonization time for the nearest planet
-        const travelTime = hasMonsterInBetween ? 2 * 10 : 10; // 10 minutes travel time, doubled if there's a monster in between
+        const travelTime = hasMonsterInBetween ? 20 : 10; // 10 minutes travel time, doubled if there's a monster in between
         const colonizationTime = nearestPlanet.surfaceArea * colonizationTimePerKm2;
 
         // If there's enough time to travel to the planet, colonize it, and return, add it to the list of colonized planets
@@ -119,13 +142,14 @@ const writeReport = async (colonizedPlanets: Planet[], totalSurfaceArea: number)
     report.flightPlan.push({
       step: i + 1,
       action: 'Travel to planet',
-      coordinates: { x: planet.coordinates.x, y: planet.coordinates.y, z: planet.coordinates.z }
+      coordinates: planet.coordinates
     });
   }
 
   // Write the report to a file
   await writeFile('report.json', JSON.stringify(report, null, 2));
 }
+
 
 // Function to start the colonization process
 export const colonizeUniverse = async (homePlanet: Planet) => {
