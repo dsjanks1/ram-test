@@ -60,7 +60,7 @@ Your coordinate system ranges from 000.000.00.0 to 999.999.99.9, and you live in
     }
     ]
 
-    - Calculating the distance between planets using Pythagoras' theorem
+##### Calculating the distance between planets using Pythagoras' theorem
 
 The `calculateDistance` function uses the from and to are the two points between which the distance is being calculated. The difference between the x, y, and z coordinates of these points is squared, summed up, and then the square root of the sum is taken, which gives the straight-line distance between the two points.
 
