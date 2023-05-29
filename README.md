@@ -8,7 +8,8 @@
 
  2. `npm i` Install node_modules
 
- 1. `npm run start` //Starts the application using nodemon and ts-node to do cold reloading.
+ 1. `npm run start` //Starts the application and excutes the two functions in index.ts, this will gernerate the universe, write to JSON file and generate the report
+ using nodemon and ts-node to do cold reloading.
 
 ## Programming Challenge - Starship Captain
 
