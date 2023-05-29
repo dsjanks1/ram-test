@@ -44,7 +44,7 @@ const readUniverseFromFile = async (): Promise<Universe> => {
 
   // Initialize a new Universe
   const universe = new Universe(0);
-
+    
   // Iterate through the planets and monsters in the parsed data, 
   // creating new Planet and Monster instances and adding them to the Universe
   for (const planetData of jsonData.planets) {
@@ -78,11 +78,14 @@ let totalSurfaceArea = 0;
 const findPlanetsToColonize = async (homePlanet: Planet) => {
   totalSurfaceArea = 0;
   const universe = await readUniverseFromFile();
+  // Initialize the total time available for colonization, which is 24 hours, converted into minutes.
   let timeLeft = 24 * 60; // Time in minutes
+  // Calculate the time required to colonize a square kilometer, given in minutes.
   const colonizationTimePerKm2 = 0.043 / (60 * 60); // Time in minutes
   let currentPlanet = homePlanet;
   const colonizedPlanets: Planet[] = [];
 
+  //Generate an array of all habitable planets in the universe, along with their distances from the current planet.
   const habitablePlanets: PlanetWithDistance[] = universe.planets
   .filter((p) => p.isHabitable)
   .map((p) => ({
@@ -106,7 +109,7 @@ const findPlanetsToColonize = async (homePlanet: Planet) => {
         });
 
         // Calculate travel time and colonization time for the nearest planet
-        const travelTime = hasMonsterInBetween ? 2 * 10 : 10; // 10 minutes travel time, doubled if there's a monster in between
+        const travelTime = hasMonsterInBetween ? 20 : 10; // 10 minutes travel time, doubled if there's a monster in between
         const colonizationTime = nearestPlanet.surfaceArea * colonizationTimePerKm2;
 
         // If there's enough time to travel to the planet, colonize it, and return, add it to the list of colonized planets

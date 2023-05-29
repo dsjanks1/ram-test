@@ -47,11 +47,11 @@ export class Coordinates {
     // Define the size of the universe (number of locations) when an instance of Universe is created
     constructor(public size: number) {}
   
-    // Private method to generate a single segment of a coordinate.
+    // Method to generate a single segment of a coordinate.
     // A segment is a 1-3 digits number, padded with zeros if it has less than the required digits
     private generateSegment = (digits: number) => (Math.floor(Math.random() * (10 ** digits))).toString().padStart(digits, '0');
   
-    // Private method to generate a full coordinate, composed of four segments
+    // Method to generate a full coordinate, composed of four segments
     // The format is 000.000.00.0, giving a total of 9 digits
     private generateCoordinate = () => `${this.generateSegment(3)}.${this.generateSegment(3)}.${this.generateSegment(2)}.${this.generateSegment(1)}`;
   
